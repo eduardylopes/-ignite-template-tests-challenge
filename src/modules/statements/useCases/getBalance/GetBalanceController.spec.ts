@@ -25,7 +25,7 @@ describe("Create UserProfile Controller", () => {
     await connection.close();
   });
 
-  it("should be able deposit when authenticated", async () => {
+  it("should be able get user statement and balance", async () => {
     const authenticateResponse = await request(app)
       .post("/api/v1/sessions")
       .send({ email: user.email, password: user.password });
@@ -43,21 +43,23 @@ describe("Create UserProfile Controller", () => {
     expect(response.body).toHaveProperty("balance");
   });
 
-  it("should be able get user statement and balance", async () => {
-    const authenticateResponse = await request(app)
-      .post("/api/v1/sessions")
-      .send({ email: user.email, password: user.password });
-
-    const { token } = authenticateResponse.body;
+  it("should not be able get user statement and balance with invalid token", async () => {
+    const token = "invalid_token00934209420-93490-1902";
 
     const response = await request(app)
       .get("/api/v1/statements/balance")
       .set({ Authorization: `Bearer ${token}` });
 
-    console.log(response.body);
+    expect(response.status).toBe(401);
+  });
 
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("statement");
-    expect(response.body).toHaveProperty("balance");
+  it("should not be able get user statement and balance with token missing", async () => {
+    const token = null;
+
+    const response = await request(app)
+      .get("/api/v1/statements/balance")
+      .set({ Authorization: `Bearer ${token}` });
+
+    expect(response.status).toBe(401);
   });
 });
