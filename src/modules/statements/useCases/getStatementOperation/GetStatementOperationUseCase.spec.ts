@@ -4,6 +4,8 @@ import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMem
 import { IStatementsRepository } from "../../repositories/IStatementsRepository";
 import { CreateStatementUseCase } from "../createStatement/CreateStatementUseCase";
 import { GetBalanceError } from "../getBalance/GetBalanceError";
+import { GetStatementOperationError } from "./GetStatementOperationError";
+import { GetStatementOperationUseCase } from "./GetStatementOperationUseCase";
 
 enum OperationType {
   DEPOSIT = "deposit",
@@ -13,6 +15,7 @@ enum OperationType {
 describe("Create Statement", () => {
   let createStatementUseCase: CreateStatementUseCase;
   let createUserUseCase: CreateUserUseCase;
+  let getStatementOperationUseCase: GetStatementOperationUseCase;
   let inMemoryStatementsRepository: IStatementsRepository;
   let inMemoryUsersRepository: InMemoryUsersRepository;
 
@@ -24,9 +27,13 @@ describe("Create Statement", () => {
       inMemoryUsersRepository,
       inMemoryStatementsRepository
     );
+    getStatementOperationUseCase = new GetStatementOperationUseCase(
+      inMemoryUsersRepository,
+      inMemoryStatementsRepository
+    );
   });
 
-  it("should be able get user balance", async () => {
+  it("should be able get user statement operation", async () => {
     const user = {
       name: "Eduardy",
       email: "eduardylopes@gmail.com",
@@ -43,12 +50,16 @@ describe("Create Statement", () => {
     };
 
     const createdStatement = await createStatementUseCase.execute(statement);
-    console.log(createdStatement);
 
-    expect(createdStatement.amount).toEqual(statement.amount);
+    const userStatement = await getStatementOperationUseCase.execute({
+      user_id: createdUser.id as string,
+      statement_id: createdStatement.id as string,
+    });
+
+    expect(userStatement).toHaveProperty("id");
   });
 
-  it("should not be able get balance from a non existent user", () => {
+  it("should not be able get statement for a non existent user", () => {
     expect(async () => {
       const user = {
         name: "Eduardy",
@@ -65,7 +76,12 @@ describe("Create Statement", () => {
         description: "rent payment",
       };
 
-      await createStatementUseCase.execute(statement);
-    }).rejects.toBeInstanceOf(GetBalanceError);
+      const createdStatement = await createStatementUseCase.execute(statement);
+
+      await getStatementOperationUseCase.execute({
+        user_id: "invalid_id9090324901092390",
+        statement_id: createdStatement.id as string,
+      });
+    }).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound);
   });
 });
