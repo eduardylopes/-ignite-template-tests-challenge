@@ -1,7 +1,5 @@
-import { hash } from "bcryptjs";
 import request from "supertest";
 import { Connection } from "typeorm";
-import { v4 as uuidV4 } from "uuid";
 
 import { app } from "../../../../app";
 import createConnection from "../../../../database";

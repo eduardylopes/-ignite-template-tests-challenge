@@ -33,13 +33,16 @@ describe("Create UserProfile Controller", () => {
     const { token } = authenticateResponse.body;
 
     const response = await request(app)
-      .get("/api/v1/statements/balance")
+      .get("/api/v1/profile")
+      .send({
+        email: "eduardylopes@gmail.com",
+        password: "123456",
+      })
       .set({ Authorization: `Bearer ${token}` });
 
     console.log(response.body);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("statement");
-    expect(response.body).toHaveProperty("balance");
+    expect(response.body).toHaveProperty("id");
   });
 });

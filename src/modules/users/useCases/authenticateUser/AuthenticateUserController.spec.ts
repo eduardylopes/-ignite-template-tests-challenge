@@ -1,14 +1,12 @@
-import { hash } from "bcryptjs";
 import request from "supertest";
 import { Connection } from "typeorm";
-import { v4 as uuidV4 } from "uuid";
 
 import { app } from "../../../../app";
 import createConnection from "../../../../database";
 
 let connection: Connection;
 
-describe("Create Category Controller", () => {
+describe("Create AuthenticateUser Controller", () => {
   const user = {
     name: "Eduardy Lopes de Morais",
     email: "eduardylopes@gmail.com",
